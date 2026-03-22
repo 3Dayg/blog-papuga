@@ -31,6 +31,16 @@ export function postsRoutes(app) {
 
   app.get('/api/v1/posts/:id', async (req, res) => {
     try {
+      const post = await getPostById(req.params.id)
+      return res.json(post)
+    } catch (err) {
+      console.error('error retrieving post', err)
+      return res.status(404).end()
+    }
+  })
+
+  app.get('/api/v1/posts/:id', async (req, res) => {
+    try {
       const post = await updatePost(req.params.id, req.body)
       return res.json(post)
     } catch (err) {
