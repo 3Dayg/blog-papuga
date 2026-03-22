@@ -1,4 +1,5 @@
-name: Blog Backend CI
+name: Backend CI
+run-name: Backend CI
 on:
   push:
     branches:

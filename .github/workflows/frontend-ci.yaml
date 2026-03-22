@@ -1,4 +1,5 @@
 name: Frontend CI
+run-name: Frontend CI
 on:
   push:
     branches:
