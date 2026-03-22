@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx commitlint --edit ${1}
+if [ -f frontend/package.json ]; then
+	npm --prefix frontend exec commitlint -- --config frontend/.commitlintrc.json --edit "$1"
+else
+	npx commitlint --edit "$1"
+fi

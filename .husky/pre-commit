@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+if [ -f frontend/package.json ]; then
+	npm --prefix frontend exec lint-staged
+else
+	npx lint-staged
+fi
