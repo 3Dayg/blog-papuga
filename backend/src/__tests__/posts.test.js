@@ -10,12 +10,13 @@ import {
   deletePost,
 } from '../services/post.js'
 import { Post } from '../db/models/post.js'
+import { User } from '../db/models/user.js'
 
 describe('creating posts', () => {
   test('with all parameters should succeed', async () => {
     const post = {
       title: 'Hello Mongoose!',
-      author: 'Daniel Bugl',
+      author: testUser._id,
       contents: 'This post is stored in a MongoDB database using Mongoose.',
       tags: ['mongoose', 'mongodb'],
     }
@@ -29,7 +30,7 @@ describe('creating posts', () => {
 
   test('without title should fail', async () => {
     const post = {
-      author: 'Daniel Bugl',
+      author: testUser._id,
       contents: 'Post with no title',
       tags: ['empty'],
     }
@@ -45,6 +46,7 @@ describe('creating posts', () => {
   test('with minimal parameters should succeed', async () => {
     const post = {
       title: 'Only a title',
+      author: testUser._id,
     }
     const createdPost = await createPost(post)
     expect(createdPost._id).toBeInstanceOf(mongoose.Types.ObjectId)
@@ -81,8 +83,8 @@ describe('listing posts', () => {
   })
 
   test('should be able to filter posts by author', async () => {
-    const posts = await listPostsByAuthor('Daniel Bugl')
-    expect(posts.length).toBe(3)
+    const posts = await listPostsByAuthor(testUser._id)
+    expect(posts.length).toBe(4)
   })
 
   test('should be able to filter posts by tag', async () => {
@@ -105,22 +107,34 @@ describe('getting a post', () => {
 
 describe('updating posts', () => {
   test('should update the specified property', async () => {
+    const newAuthor = new User({
+      username: 'Luigi',
+      password: 'Luigino',
+    })
     await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+      author: newAuthor._id,
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
-    expect(updatedPost.author).toEqual('Test Author')
+    expect(updatedPost.author).toEqual(newAuthor._id)
   })
   test('should not update other properties', async () => {
+    const newAuthor = new User({
+      username: 'Pippo',
+      password: 'Pippino',
+    })
     await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+      author: newAuthor._id,
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
     expect(updatedPost.title).toEqual('Learning Redux')
   })
   test('should update the updatedAt timestamp', async () => {
+    const newAuthor = new User({
+      username: 'Luca',
+      password: 'yolo',
+    })
     await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+      author: newAuthor._id,
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
     expect(updatedPost.updatedAt.getTime()).toBeGreaterThan(
@@ -128,8 +142,13 @@ describe('updating posts', () => {
     )
   })
   test('should fail if the id does not exist', async () => {
+    const newAuthor = new User({
+      username: 'Silvia',
+      password: 'nissan',
+    })
+
     const post = await updatePost('000000000000000000000000', {
-      author: 'Test Author',
+      author: newAuthor._id,
     })
     expect(post).toEqual(null)
   })
@@ -149,23 +168,33 @@ describe('deleting posts', () => {
 })
 
 const samplePosts = [
-  { title: 'Learning Redux', author: 'Daniel Bugl', tags: ['redux'] },
-  { title: 'Learn React Hooks', author: 'Daniel Bugl', tags: ['react'] },
+  { title: 'Learning Redux', tags: ['redux'] },
+  { title: 'Learn React Hooks', tags: ['react'] },
   {
     title: 'Full-Stack React Projects',
-    author: 'Daniel Bugl',
     tags: ['react', 'nodejs'],
   },
   { title: 'Guide to TypeScript' },
 ]
 
 let createdSamplePosts = []
+let testUser
 
 beforeEach(async () => {
   await Post.deleteMany({})
+  await User.deleteMany({})
+
+  testUser = await new User({
+    username: 'Matias Alvarez',
+    password: 'testpass',
+  }).save()
+
   createdSamplePosts = []
   for (const post of samplePosts) {
-    const createdPost = new Post(post)
+    const createdPost = new Post({
+      ...post,
+      author: testUser._id,
+    })
     createdSamplePosts.push(await createdPost.save())
   }
 })
