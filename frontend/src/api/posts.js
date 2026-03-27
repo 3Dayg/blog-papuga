@@ -7,6 +7,7 @@ export const getPosts = async (queryParams) => {
 }
 
 export const createPost = async (token, post) => {
+  console.log('amtest token', token)
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/posts`, {
     method: 'POST',
     headers: {
