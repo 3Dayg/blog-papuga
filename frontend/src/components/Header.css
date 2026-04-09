@@ -1,0 +1,18 @@
+.header {
+  background-color: beige;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  padding: 24px;
+  align-items: center;
+
+  > .logo {
+    width: 320px;
+  }
+  > .about,
+  > .actions {
+    font-size: x-large;
+  }
+  > .actions {
+    text-align: right;
+  }
+}
